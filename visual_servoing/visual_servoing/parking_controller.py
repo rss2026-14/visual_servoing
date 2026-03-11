@@ -29,8 +29,8 @@ class ParkingController(Node):
             ConeLocation, "/relative_cone", self.relative_cone_callback, 1)
 
         self.parking_distance = .75  # meters; try playing with this number!
-        self.relative_x = 0
-        self.relative_y = 0
+        self.relative_x = 0.0
+        self.relative_y = 0.0
 
         self.get_logger().info("Parking Controller Initialized")
 
@@ -45,7 +45,24 @@ class ParkingController(Node):
         # Use relative position and your control law to set drive_cmd
 
         #################################
+        angle = np.arctan2(self.relative_y, self.relative_x)
+        current_distance = np.sqrt(self.relative_x**2 + self.relative_y**2)
+        distance_error = current_distance - self.parking_distance
 
+        if abs(distance_error) < 0.05 and abs(angle) < 0.01:
+            steering_angle = 0.0
+            velocity = 0.0
+        elif abs(angle) >= 0.01:
+            velocity = -1.0
+            steering_angle = -angle * 2.0
+        else:
+            velocity = 1.0
+            steering_angle = 0.0
+
+        drive_cmd.header.stamp = self.get_clock().now().to_msg()
+        drive_cmd.header.frame_id = 'base_link'
+        drive_cmd.drive.speed = velocity
+        drive_cmd.drive.steering_angle = steering_angle
         self.drive_pub.publish(drive_cmd)
         self.error_publisher()
 
@@ -65,7 +82,7 @@ class ParkingController(Node):
 
         error_msg.x_error = self.relative_x
         error_msg.y_error = self.relative_y
-        error_msg.distance_error = 0.0
+        error_msg.distance_error = np.sqrt(self.relative_x**2 + self.relative_y**2)
 
         self.error_pub.publish(error_msg)
 
