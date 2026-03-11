@@ -7,7 +7,8 @@ import numpy as np
 from vs_msgs.msg import ConeLocation, ParkingError
 from ackermann_msgs.msg import AckermannDriveStamped
 
-
+"""
+"""
 class ParkingController(Node):
     """
     A controller for parking in front of a cone.
@@ -61,6 +62,10 @@ class ParkingController(Node):
         # Populate error_msg with relative_x, relative_y, sqrt(x^2+y^2)
 
         #################################
+
+        error_msg.x_error = self.relative_x
+        error_msg.y_error = self.relative_y
+        error_msg.distance_error = 0.0
 
         self.error_pub.publish(error_msg)
 
