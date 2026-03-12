@@ -49,15 +49,21 @@ class ParkingController(Node):
         current_distance = np.sqrt(self.relative_x**2 + self.relative_y**2)
         distance_error = current_distance - self.parking_distance
 
-        if abs(distance_error) < 0.05 and abs(angle) < 0.01:
-            steering_angle = 0.0
-            velocity = 0.0
-        elif abs(angle) >= 0.01:
-            velocity = -1.0
+        if abs(distance_error) < 0.05:
+            if abs(angle) < 0.1:
+                steering_angle = 0.0
+                velocity = 0.0
+            else:
+                steering_angle = -angle * 2.0
+                velocity = -0.8
+        elif abs(angle) >= 0.1:
+            velocity = -0.7
             steering_angle = -angle * 2.0
         else:
-            velocity = 1.0
-            steering_angle = 0.0
+            velocity = 0.7
+            steering_angle = angle * 2.0
+
+        steering_angle = np.clip(steering_angle, -0.34, 0.34)
 
         drive_cmd.header.stamp = self.get_clock().now().to_msg()
         drive_cmd.header.frame_id = 'base_link'
@@ -80,9 +86,9 @@ class ParkingController(Node):
 
         #################################
 
-        error_msg.x_error = self.relative_x
+        error_msg.x_error = self.relative_x - self.parking_distance
         error_msg.y_error = self.relative_y
-        error_msg.distance_error = np.sqrt(self.relative_x**2 + self.relative_y**2)
+        error_msg.distance_error = np.sqrt(self.relative_x**2 + self.relative_y**2) - self.parking_distance
 
         self.error_pub.publish(error_msg)
 
