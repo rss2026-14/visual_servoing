@@ -22,8 +22,8 @@ class ParkingController(Node):
         self.declare_parameter("drive_topic")
         DRIVE_TOPIC = self.get_parameter("drive_topic").value  # set in launch file; different for simulator vs racecar
 
-        self.declare_parameter("angle_multiplier")
-        self.declare_parameter("velocity")
+        self.declare_parameter("angle_multiplier", 2.0)
+        self.declare_parameter("velocity", 0.7)
         self.angle_multiplier = self.get_parameter("angle_multiplier").value
         self.velocity = self.get_parameter("velocity").value
 
