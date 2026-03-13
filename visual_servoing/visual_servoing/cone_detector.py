@@ -48,11 +48,60 @@ class ConeDetector(Node):
         # pixel location in the image.
         # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         #################################
+        # Convert ROS image message to OpenCV image
+        try:
+            image = self.bridge.imgmsg_to_cv2(image_msg, "bgr8")
+        except CvBridgeError as e:
+            self.get_logger().error(f"Failed to convert image: {e}")
+            return
 
-        image = self.bridge.imgmsg_to_cv2(image_msg, "bgr8")
+        # Get bounding box from color segmentation
+        # The function returns ((x1, y1), (x2, y2))
+        bounding_box = cd_color_segmentation(image)
 
-        debug_msg = self.bridge.cv2_to_imgmsg(image, "bgr8")
-        self.debug_pub.publish(debug_msg)
+        # Create message to publish
+        cone_px_msg = ConeLocationPixel()
+
+        if bounding_box is not None:
+            # Extract bounding box coordinates from the tuple of tuples format
+            (x_min, y_min), (x_max, y_max) = bounding_box
+
+            # Calculate bottom center pixel
+            # This point is on the ground plane where the cone touches the ground
+            u = (x_min + x_max) // 2  # center x coordinate
+            v = y_max  # bottom y coordinate
+
+            # Fill the message
+            cone_px_msg.u = float(u)
+            cone_px_msg.v = float(v)
+
+            # Draw debug visualization
+            # Draw bounding box
+            cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+            # Draw bottom center point
+            cv2.circle(image, (u, v), 5, (0, 0, 255), -1)
+            # Add text
+            cv2.putText(image, f"({u}, {v})", (u + 10, v - 10),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+            self.get_logger().info(f"Detected cone at pixel: ({u}, {v})")
+        else:
+            # No cone detected, publish sentinel values
+            cone_px_msg.u = -1.0
+            cone_px_msg.v = -1.0
+
+            self.get_logger().info("No cone detected")
+
+        # Publish cone pixel location
+        self.cone_pub.publish(cone_px_msg)
+
+        # Publish debug image
+        try:
+            debug_msg = self.bridge.cv2_to_imgmsg(image, "bgr8")
+            self.debug_pub.publish(debug_msg)
+        except CvBridgeError as e:
+            self.get_logger().error(f"Failed to convert debug image: {e}")
+
 
 
 def main(args=None):
