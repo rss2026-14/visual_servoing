@@ -7,8 +7,7 @@ import numpy as np
 from vs_msgs.msg import ConeLocation, ParkingError
 from ackermann_msgs.msg import AckermannDriveStamped
 
-"""
-"""
+
 class ParkingController(Node):
     """
     A controller for parking in front of a cone.
@@ -22,11 +21,6 @@ class ParkingController(Node):
         self.declare_parameter("drive_topic")
         DRIVE_TOPIC = self.get_parameter("drive_topic").value  # set in launch file; different for simulator vs racecar
 
-        self.declare_parameter("angle_multiplier")
-        self.declare_parameter("velocity")
-        self.angle_multiplier = self.get_parameter("angle_multiplier").value
-        self.velocity = self.get_parameter("velocity").value
-
         self.drive_pub = self.create_publisher(AckermannDriveStamped, DRIVE_TOPIC, 10)
         self.error_pub = self.create_publisher(ParkingError, "/parking_error", 10)
 
@@ -34,8 +28,8 @@ class ParkingController(Node):
             ConeLocation, "/relative_cone", self.relative_cone_callback, 1)
 
         self.parking_distance = .75  # meters; try playing with this number!
-        self.relative_x = 0.0
-        self.relative_y = 0.0
+        self.relative_x = 0
+        self.relative_y = 0
 
         self.get_logger().info("Parking Controller Initialized")
 
@@ -50,30 +44,7 @@ class ParkingController(Node):
         # Use relative position and your control law to set drive_cmd
 
         #################################
-        angle = np.arctan2(self.relative_y, self.relative_x)
-        current_distance = np.sqrt(self.relative_x**2 + self.relative_y**2)
-        distance_error = current_distance - self.parking_distance
 
-        if abs(distance_error) < 0.05:
-            if abs(angle) < 0.1:
-                steering_angle = 0.0
-                velocity = 0.0
-            else:
-                steering_angle = -angle * self.angle_multiplier
-                velocity = -self.velocity
-        elif abs(angle) >= 0.1:
-            velocity = -self.velocity
-            steering_angle = -angle * self.angle_multiplier
-        else:
-            velocity = self.velocity
-            steering_angle = angle * self.angle_multiplier
-
-        steering_angle = np.clip(steering_angle, -0.34, 0.34)
-
-        drive_cmd.header.stamp = self.get_clock().now().to_msg()
-        drive_cmd.header.frame_id = 'base_link'
-        drive_cmd.drive.speed = velocity
-        drive_cmd.drive.steering_angle = steering_angle
         self.drive_pub.publish(drive_cmd)
         self.error_publisher()
 
@@ -90,10 +61,6 @@ class ParkingController(Node):
         # Populate error_msg with relative_x, relative_y, sqrt(x^2+y^2)
 
         #################################
-
-        error_msg.x_error = self.relative_x - self.parking_distance
-        error_msg.y_error = self.relative_y
-        error_msg.distance_error = np.sqrt(self.relative_x**2 + self.relative_y**2) - self.parking_distance
 
         self.error_pub.publish(error_msg)
 

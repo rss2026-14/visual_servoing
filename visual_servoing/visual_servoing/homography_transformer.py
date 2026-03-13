@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import rclpy
 from rclpy.node import Node
 import numpy as np
@@ -10,7 +11,6 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from ackermann_msgs.msg import AckermannDriveStamped
 from visualization_msgs.msg import Marker
-from geometry_msgs.msg import PointStamped
 from vs_msgs.msg import ConeLocation, ConeLocationPixel
 
 # The following collection of pixel locations and corresponding relative
@@ -21,10 +21,10 @@ from vs_msgs.msg import ConeLocation, ConeLocationPixel
 
 ######################################################
 # DUMMY POINTS -- ENTER YOUR MEASUREMENTS HERE
-PTS_IMAGE_PLANE = [[291, 218],
-                   [72,272],
-                   [543,218],
-                   [388,197]]  # dummy points
+PTS_IMAGE_PLANE = [[-1, -1],
+                   [-1, -1],
+                   [-1, -1],
+                   [-1, -1]]  # dummy points
 ######################################################
 
 # PTS_GROUND_PLANE units are in inches
@@ -32,10 +32,10 @@ PTS_IMAGE_PLANE = [[291, 218],
 
 ######################################################
 # DUMMY POINTS -- ENTER YOUR MEASUREMENTS HERE
-PTS_GROUND_PLANE = [[6,35],
-                    [15.5,19],
-                    [-18,37],
-                    [-6,47]]  # dummy points
+PTS_GROUND_PLANE = [[-1, -1],
+                    [-1, -1],
+                    [-1, -1],
+                    [-1, -1]]  # dummy points
 ######################################################
 
 METERS_PER_INCH = 0.0254
@@ -52,12 +52,7 @@ class HomographyTransformer(Node):
         if not len(PTS_GROUND_PLANE) == len(PTS_IMAGE_PLANE):
             rclpy.logerr("ERROR: PTS_GROUND_PLANE and PTS_IMAGE_PLANE should be of same length")
 
-        self.mouse_sub = self.create_subscription(
-            PointStamped,  # or whatever type /mouse_click publishes
-            "/zed/rgb/image_rect_color_mouse_left",
-            self.mouse_callback,
-            1
-        )
+        # Initialize data into a homography matrix
 
         np_pts_ground = np.array(PTS_GROUND_PLANE)
         np_pts_ground = np_pts_ground * METERS_PER_INCH
@@ -71,13 +66,6 @@ class HomographyTransformer(Node):
 
         self.get_logger().info("Homography Transformer Initialized")
 
-    def mouse_callback(self, msg):
-        u = msg.point.x
-        v = msg.point.y
-
-        x,y = self.transformUvToXy(u, v)
-        self.draw_marker(x,y, "base_link")
-        c
     def cone_detection_callback(self, msg):
         # Extract information from message
         u = msg.u
@@ -135,7 +123,7 @@ class HomographyTransformer(Node):
         self.marker_pub.publish(marker)
 
 
-def main(args=None):    
+def main(args=None):
     rclpy.init(args=args)
     homography_transformer = HomographyTransformer()
     rclpy.spin(homography_transformer)
