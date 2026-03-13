@@ -56,4 +56,3 @@ def cd_color_segmentation(img, template):
 
     # Return bounding box
     return bounding_box
->>>>>>> origin/phillip_color_segmenting
