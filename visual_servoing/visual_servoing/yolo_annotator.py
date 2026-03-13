@@ -149,18 +149,19 @@ class YoloAnnotatorNode(Node):
         #       detections List.
         #
         # Hint: use Python's zip keyword to iterate through the three arrays in a single for loop.
-        for box, conf_val, cls_val in zip(xyxy_np, conf_np, cls_np):
+        for box, conf, cls in zip(xyxy_np, conf_np, cls_np):
             x1, y1, x2, y2 = box
-            class_name = self.model.names[int(cls_val)]
+            class_name = self.model.names[int(cls)]
             detections.append(
                 Detection(
-                    class_id=int(cls_val),
+                    class_id=int(cls),
                     class_name=class_name,
-                    confidence=float(conf_val),
+                    confidence=float(conf),
                     x1=int(x1),
                     y1=int(y1),
                     x2=int(x2),
                     y2=int(y2),
+                    
                 )
             )
         return detections
@@ -227,4 +228,3 @@ def main() -> None:
     finally:
         node.destroy_node()
         rclpy.shutdown()
-
