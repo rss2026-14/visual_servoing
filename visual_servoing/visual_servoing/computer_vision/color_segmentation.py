@@ -1,4 +1,8 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 96e24f34cda0145e71f335bcc8240a921a2f5858
 import cv2
 import numpy as np
 
@@ -56,6 +60,7 @@ def cd_color_segmentation(img, template):
 
     # Return bounding box
     return bounding_box
+<<<<<<< HEAD
 =======
 import cv2
 import numpy as np
@@ -114,3 +119,6 @@ def cd_color_segmentation(img, template):
 
     # Return bounding box
     return bounding_box
+=======
+>>>>>>> origin/phillip_color_segmenting
+>>>>>>> 96e24f34cda0145e71f335bcc8240a921a2f5858
