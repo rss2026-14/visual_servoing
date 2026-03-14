@@ -111,6 +111,7 @@ class HomographyTransformer(Node):
         homogeneous_xy = xy * scaling_factor
         x = homogeneous_xy[0, 0]
         y = homogeneous_xy[1, 0]
+        self.draw_marker(x,y,"base_link")
         return x, y
 
     def draw_marker(self, cone_x, cone_y, message_frame):
