@@ -10,7 +10,7 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from ackermann_msgs.msg import AckermannDriveStamped
 from visualization_msgs.msg import Marker
-from geometry_msgs.msg import PointStamped
+from geometry_msgs.msg import Point, PointStamped
 from vs_msgs.msg import ConeLocation, ConeLocationPixel
 
 # The following collection of pixel locations and corresponding relative
@@ -24,7 +24,7 @@ from vs_msgs.msg import ConeLocation, ConeLocationPixel
 PTS_IMAGE_PLANE = [[291, 218],
                    [72,272],
                    [543,218],
-                   [388,197]]  # dummy points
+                   [321,146]]  # dummy points
 ######################################################
 
 # PTS_GROUND_PLANE units are in inches
@@ -32,10 +32,10 @@ PTS_IMAGE_PLANE = [[291, 218],
 
 ######################################################
 # DUMMY POINTS -- ENTER YOUR MEASUREMENTS HERE
-PTS_GROUND_PLANE = [[6,35],
-                    [15.5,19],
-                    [-18,37],
-                    [-6,47]]  # dummy points
+PTS_GROUND_PLANE = [[35,5],
+                    [19,15.5],
+                    [37,-18],
+                    [192,0]]  # dummy points
 ######################################################
 
 METERS_PER_INCH = 0.0254
@@ -55,7 +55,7 @@ class HomographyTransformer(Node):
         self.mouse_sub = self.create_subscription(
             PointStamped,  # or whatever type /mouse_click publishes
             "/zed/zed_node/rgb/image_rect_color",
-            self.mouse_callback,
+   self.mouse_callback,
             1
         )
 
@@ -92,6 +92,7 @@ class HomographyTransformer(Node):
         relative_xy_msg.y_pos = y
 
         self.cone_pub.publish(relative_xy_msg)
+        self.draw_marker(x,y, "base_link")
 
     def transformUvToXy(self, u, v):
         """
@@ -112,6 +113,7 @@ class HomographyTransformer(Node):
         homogeneous_xy = xy * scaling_factor
         x = homogeneous_xy[0, 0]
         y = homogeneous_xy[1, 0]
+        self.draw_marker(x,y,"base_link")
         return x, y
 
     def draw_marker(self, cone_x, cone_y, message_frame):

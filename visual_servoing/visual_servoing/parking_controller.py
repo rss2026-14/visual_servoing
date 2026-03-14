@@ -20,9 +20,11 @@ class ParkingController(Node):
         self.declare_parameter("drive_topic")
         DRIVE_TOPIC = self.get_parameter("drive_topic").value  # set in launch file; different for simulator vs racecar
 
-        self.declare_parameter("angle_multiplier", 2.0)
+        self.declare_parameter("angle_multiplier", 2.5)
         self.declare_parameter("velocity", 0.7)
+        self.declare_parameter("reverse_range", 0.1)
         self.angle_multiplier = self.get_parameter("angle_multiplier").value
+        self.reverse_range = self.get_parameter("reverse_range").value
         self.velocity = self.get_parameter("velocity").value
 
         self.drive_pub = self.create_publisher(AckermannDriveStamped, DRIVE_TOPIC, 10)
@@ -53,13 +55,13 @@ class ParkingController(Node):
         distance_error = current_distance - self.parking_distance
 
         if abs(distance_error) < 0.05:
-            if abs(angle) < 0.1:
+            if abs(angle) < self.reverse_range:
                 steering_angle = 0.0
                 velocity = 0.0
             else:
                 steering_angle = -angle * self.angle_multiplier
                 velocity = -self.velocity
-        elif abs(angle) >= 0.1:
+        elif abs(angle) >= self.reverse_range:
             velocity = -self.velocity
             steering_angle = -angle * self.angle_multiplier
         else:
