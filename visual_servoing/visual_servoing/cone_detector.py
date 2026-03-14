@@ -49,10 +49,31 @@ class ConeDetector(Node):
         # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
         #################################
 
+         # Convert ROS image to OpenCV image
         image = self.bridge.imgmsg_to_cv2(image_msg, "bgr8")
-
-        debug_msg = self.bridge.cv2_to_imgmsg(image, "bgr8")
-        self.debug_pub.publish(debug_msg)
+        
+        # Run color segmentation to get bounding box
+        bounding_box = cd_color_segmentation(image, None)
+        
+        # bounding_box is ((x1, y1), (x2, y2)) - top left and bottom right corners
+        x1, y1 = bounding_box[0]
+        x2, y2 = bounding_box[1]
+        
+        # Take the center-bottom pixel of the bounding box
+        # (this point is on the ground plane, which is what homography expects)
+        u = int((x1 + x2) / 2)  # horizontal center
+        v = int(y2)              # bottom of bounding box
+        
+        # Publish pixel location
+        cone_px_msg = ConeLocationPixel()
+        cone_px_msg.u = float(u)
+        cone_px_msg.v = float(v)
+        self.cone_pub.publish(cone_px_msg)
+        
+        # Optional: publish debug image to visualize detection
+        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        cv2.circle(image, (u, v), 5, (0, 0, 255), -1)
+        self.debug_pub.publish(self.bridge.cv2_to_imgmsg(image, "bgr8"))
 
 
 def main(args=None):
