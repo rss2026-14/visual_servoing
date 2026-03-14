@@ -54,7 +54,7 @@ class HomographyTransformer(Node):
 
         self.mouse_sub = self.create_subscription(
             PointStamped,  # or whatever type /mouse_click publishes
-            "/zed/rgb/image_rect_color_mouse_left",
+            "/zed/zed_node/rgb/image_rect_color",
             self.mouse_callback,
             1
         )

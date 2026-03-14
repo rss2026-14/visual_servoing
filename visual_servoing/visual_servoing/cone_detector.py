@@ -25,17 +25,21 @@ def cd_color_segmentation(img, template):
             (x1, y1) is the top left of the bbox and (x2, y2) is the bottom right of the bbox
     """
     ########## YOUR CODE STARTS HERE ##########
-    HSV_img=cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+    # Image from ZED/cv_bridge is BGR, not RGB
+    HSV_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    lower_bound = np.array([0, 80, 110])
+    # Relaxed HSV bounds for distant cones (5m+): at distance, cone appears
+    # smaller, less saturated, and dimmer. Lower S and V minimums help.
+    lower_bound = np.array([0, 40, 60])   # was [0, 80, 110] - too strict for far cones
     upper_bound = np.array([50, 255, 255])
-    # lower_bound = np.array([10, 130, 100])
-    # upper_bound = np.array([25, 255, 255])
-    cone_mask=cv2.inRange(HSV_img,lower_bound,upper_bound) #Masks image - any orange pixel is 1(white), and everything else is 0(black)
 
-    kernel = np.ones((3, 3), np.uint8) #5x5 of 1s
-    eroded = cv2.erode(cone_mask, kernel, iterations=2) #For each pixel, if any neighbor in a 5x5 isn't included in the mask, removes pixel from mask
-    dilated = cv2.dilate(eroded, kernel, iterations=2) #For each pixel, if any neighbor in a 5x5 is still included in the mask, adds pixel to mask
+    cone_mask = cv2.inRange(HSV_img, lower_bound, upper_bound)
+
+    # Use gentler morphology: small cones at 5m can be erased by aggressive
+    # erosion. Smaller kernel + fewer iterations preserves distant cone blobs.
+    kernel = np.ones((2, 2), np.uint8)
+    eroded = cv2.erode(cone_mask, kernel, iterations=1)
+    dilated = cv2.dilate(eroded, kernel, iterations=1)
 
     # contours, hierarchy = cv2.findContours(dilated, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE) #makes contour of object boundary
     # contours = sorted(contours, key=cv2.contourArea, reverse=True)
@@ -52,15 +56,17 @@ def cd_color_segmentation(img, template):
     if contours:
         # Sort to find the biggest orange blob
         largest_contour = max(contours, key=cv2.contourArea)
+        area = cv2.contourArea(largest_contour)
 
-        # Check if the "cone" is actually big enough to be real
-        # If the area is too small, it's just noise.
-        # If it's too big (like the whole floor), it's also wrong.
+        # Reject tiny blobs (noise); cone at 5m is still typically 50+ px^2
+        MIN_CONE_AREA = 30
+        if area < MIN_CONE_AREA:
+            return None
 
         x1, y1, w, h = cv2.boundingRect(largest_contour)
-        return ((x1, y1), (x1+w, y1+h))
+        return ((x1, y1), (x1 + w, y1 + h))
 
-    return None # No valid cone found
+    return None  # No valid cone found
 
 
 class ConeDetector(Node):
