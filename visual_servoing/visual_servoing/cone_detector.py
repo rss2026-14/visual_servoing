@@ -37,30 +37,30 @@ def cd_color_segmentation(img, template):
     eroded = cv2.erode(cone_mask, kernel, iterations=2) #For each pixel, if any neighbor in a 5x5 isn't included in the mask, removes pixel from mask
     dilated = cv2.dilate(eroded, kernel, iterations=2) #For each pixel, if any neighbor in a 5x5 is still included in the mask, adds pixel to mask
 
-    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE) #makes contour of object boundary
-    contours = sorted(contours, key=cv2.contourArea, reverse=True)
-    x1, y1, w, h = cv2.boundingRect(contours[0]) #makes rectangle around contour
+    # contours, hierarchy = cv2.findContours(dilated, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE) #makes contour of object boundary
+    # contours = sorted(contours, key=cv2.contourArea, reverse=True)
+    # x1, y1, w, h = cv2.boundingRect(contours[0]) #makes rectangle around contour
 
-    bounding_box = ((x1, y1), (x1+w, y1+h))
+    # bounding_box = ((x1, y1), (x1+w, y1+h))
 
     # ########### YOUR CODE ENDS HERE ###########
 
     # # Return bounding box
-    return bounding_box
-    # contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # return bounding_box
+    contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # if contours:
-    #     # Sort to find the biggest orange blob
-    #     largest_contour = max(contours, key=cv2.contourArea)
+    if contours:
+        # Sort to find the biggest orange blob
+        largest_contour = max(contours, key=cv2.contourArea)
 
-    #     # Check if the "cone" is actually big enough to be real
-    #     # If the area is too small, it's just noise.
-    #     # If it's too big (like the whole floor), it's also wrong.
-    #     if cv2.contourArea(largest_contour) > 500:
-    #         x1, y1, w, h = cv2.boundingRect(largest_contour)
-    #         return ((x1, y1), (x1+w, y1+h))
+        # Check if the "cone" is actually big enough to be real
+        # If the area is too small, it's just noise.
+        # If it's too big (like the whole floor), it's also wrong.
+        if cv2.contourArea(largest_contour) > 500:
+            x1, y1, w, h = cv2.boundingRect(largest_contour)
+            return ((x1, y1), (x1+w, y1+h))
 
-    # return None # No valid cone found
+    return None # No valid cone found
 
 
 class ConeDetector(Node):
