@@ -27,7 +27,7 @@ def cd_color_segmentation(img, template):
     ########## YOUR CODE STARTS HERE ##########
     HSV_img=cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 
-    lower_bound = np.array([0, 80, 110])
+    lower_bound = np.array([0, 40, 60])
     upper_bound = np.array([50, 255, 255])
     # lower_bound = np.array([10, 130, 100])
     # upper_bound = np.array([25, 255, 255])
