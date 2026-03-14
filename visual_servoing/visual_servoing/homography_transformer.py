@@ -54,7 +54,7 @@ class HomographyTransformer(Node):
 
 
         mouse_topic = (
-            self.declare_parameter("mouse_click_topic", "/zed/zed_node/left/image_rect_color_mouse_left")
+            self.declare_parameter("mouse_click_topic", "/zed/zed_node/rgb/image_rect_color_mouse_left")
             .get_parameter_value()
             .string_value
         )
@@ -78,9 +78,14 @@ class HomographyTransformer(Node):
     def mouse_callback(self, msg):
         u = msg.point.x
         v = msg.point.y
+        self.get_logger().info(f"Mouse click received: u={u:.0f}, v={v:.0f}")
+        x, y = self.transformUvToXy(u, v)  # transformUvToXy also calls draw_marker
 
-        x,y = self.transformUvToXy(u, v)
-        self.draw_marker(x,y, "base_link")
+        # Also publish to /relative_cone so clicking can be used to test the homography pipeline
+        relative_xy_msg = ConeLocation()
+        relative_xy_msg.x_pos = x
+        relative_xy_msg.y_pos = y
+        self.cone_pub.publish(relative_xy_msg)
 
     def cone_detection_callback(self, msg):
         # Extract information from message
@@ -117,7 +122,7 @@ class HomographyTransformer(Node):
         homogeneous_xy = xy * scaling_factor
         x = homogeneous_xy[0, 0]
         y = homogeneous_xy[1, 0]
-        self.draw_marker(x,y,"base_link")
+        self.draw_marker(x,y,"zed_camera_link")
         return x, y
 
     def draw_marker(self, cone_x, cone_y, message_frame):
