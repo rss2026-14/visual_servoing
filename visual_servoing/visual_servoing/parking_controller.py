@@ -7,8 +7,6 @@ import numpy as np
 from vs_msgs.msg import ConeLocation, ParkingError
 from ackermann_msgs.msg import AckermannDriveStamped
 
-"""
-"""
 class ParkingController(Node):
     """
     A controller for parking in front of a cone.

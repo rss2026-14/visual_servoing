@@ -161,7 +161,7 @@ class YoloAnnotatorNode(Node):
                     y1=int(y1),
                     x2=int(x2),
                     y2=int(y2),
-                    
+
                 )
             )
         return detections
@@ -186,7 +186,7 @@ class YoloAnnotatorNode(Node):
             # TODO: Label the box with the class name and confidence.
             #
             # Hint: Use cv2's `putText` function to put text on the annotated image.
-        
+
             # Get bounding box
             x1, y1, x2, y2 = det.x1, det.y1, det.x2, det.y2
 

@@ -39,7 +39,7 @@ def cd_sift_ransac(img, template):
             and (x2, y2) is the bottom-right pixel of the box.
     """
     # Minimum number of matching features
-    MIN_MATCH = 10  # Adjust this value as needed
+    MIN_MATCH = 5  # Adjust this value as needed
     # Create SIFT
     sift = cv2.SIFT_create()
 
@@ -71,6 +71,9 @@ def cd_sift_ransac(img, template):
 
         ########## YOUR CODE STARTS HERE ##########
 
+        if M is None:
+            return ((0, 0), (0, 0))
+
         x_min = y_min = x_max = y_max = 0
 
         dst = cv2.perspectiveTransform(pts, M)
@@ -82,7 +85,6 @@ def cd_sift_ransac(img, template):
         x_max = int(np.max(x_coords))
         y_min = int(np.min(y_coords))
         y_max = int(np.max(y_coords))
-
         ########### YOUR CODE ENDS HERE ###########
 
         # Return bounding box
@@ -132,8 +134,19 @@ def cd_template_matching(img, template):
         res = cv2.matchTemplate(img_canny, resized_template, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 
+        # store best match
         if best_match is None or max_val > best_match[0]:
             best_match = (max_val, max_loc, w, h)
+
+        # compute bounding box from best match
+        if best_match is not None:
+            (_, best_loc, best_w, best_h) = best_match
+            x1, y1 = best_loc
+            x2 = x1 + best_w
+            y2 = y1 + best_h
+            bounding_box = ((x1, y1), (x2, y2))
+        else:
+            bounding_box = ((0, 0), (0, 0))
 
         # Remember to resize the bounding box using the highest scoring scale
         # x1,y1 pixel will be accurate, but x2,y2 needs to be correctly scaled
@@ -143,7 +156,7 @@ def cd_template_matching(img, template):
             (x2, y2) = (x1 + w, y1 + h)
 
             bounding_box = ((x1, y1), (x2, y2))
-        
+
         else:
             bounding_box = ((0, 0), (0, 0))
         ########### YOUR CODE ENDS HERE ###########
