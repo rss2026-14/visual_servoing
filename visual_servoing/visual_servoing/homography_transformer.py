@@ -76,6 +76,7 @@ class HomographyTransformer(Node):
         self.get_logger().info("Homography Transformer Initialized")
 
     def mouse_callback(self, msg):
+        self.get_logger().info("click registered")
         u = msg.point.x
         v = msg.point.y
         self.get_logger().info(f"Mouse click received: u={u:.0f}, v={v:.0f}")
