@@ -34,8 +34,8 @@ def cd_color_segmentation(img, template):
     cone_mask=cv2.inRange(HSV_img,lower_bound,upper_bound) #Masks image - any orange pixel is 1(white), and everything else is 0(black)
 
     kernel = np.ones((5, 5), np.uint8) #5x5 of 1s
-    eroded = cv2.erode(cone_mask, kernel, iterations=4) #For each pixel, if any neighbor in a 5x5 isn't included in the mask, removes pixel from mask
-    dilated = cv2.dilate(eroded, kernel, iterations=4) #For each pixel, if any neighbor in a 5x5 is still included in the mask, adds pixel to mask
+    eroded = cv2.erode(cone_mask, kernel, iterations=1) #For each pixel, if any neighbor in a 5x5 isn't included in the mask, removes pixel from mask
+    dilated = cv2.dilate(eroded, kernel, iterations=1) #For each pixel, if any neighbor in a 5x5 is still included in the mask, adds pixel to mask
 
     # contours, hierarchy = cv2.findContours(dilated, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE) #makes contour of object boundary
     # contours = sorted(contours, key=cv2.contourArea, reverse=True)
