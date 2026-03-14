@@ -32,10 +32,10 @@ PTS_IMAGE_PLANE = [[291, 218],
 
 ######################################################
 # DUMMY POINTS -- ENTER YOUR MEASUREMENTS HERE
-PTS_GROUND_PLANE = [[6,35],
-                    [15.5,19],
-                    [-18,37],
-                    [0,192]]  # dummy points
+PTS_GROUND_PLANE = [[35,5],
+                    [19,15.5],
+                    [37,-18],
+                    [192,0]]  # dummy points
 ######################################################
 
 METERS_PER_INCH = 0.0254
