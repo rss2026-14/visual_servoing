@@ -36,7 +36,7 @@ class YoloAnnotatorNode(Node):
             .string_value
         )
         self.conf_threshold = (
-            self.declare_parameter("conf_threshold", 0.5)
+            self.declare_parameter("conf_threshold", 0.2)
             .get_parameter_value()
             .double_value
         )
@@ -81,9 +81,10 @@ class YoloAnnotatorNode(Node):
         #       COCO class names to detect and their corresponding colors
         #       in the annotated image.
         return {
+            "person": (0, 255, 0),
             "chair": (255, 0, 0),
             "dining table": (0, 255, 0),
-        }
+            }
 
     def on_image(self, msg: Image) -> None:
         # Convert ROS -> OpenCV (BGR)
@@ -148,7 +149,21 @@ class YoloAnnotatorNode(Node):
         #       detections List.
         #
         # Hint: use Python's zip keyword to iterate through the three arrays in a single for loop.
+        for box, conf, cls in zip(xyxy_np, conf_np, cls_np):
+            x1, y1, x2, y2 = box
+            class_name = self.model.names[int(cls)]
+            detections.append(
+                Detection(
+                    class_id=int(cls),
+                    class_name=class_name,
+                    confidence=float(conf),
+                    x1=int(x1),
+                    y1=int(y1),
+                    x2=int(x2),
+                    y2=int(y2),
 
+                )
+            )
         return detections
 
     def draw_detections(
@@ -171,8 +186,35 @@ class YoloAnnotatorNode(Node):
             # TODO: Label the box with the class name and confidence.
             #
             # Hint: Use cv2's `putText` function to put text on the annotated image.
-            raise NotImplementedError
 
+            # Get bounding box
+            x1, y1, x2, y2 = det.x1, det.y1, det.x2, det.y2
+
+            # Get color for this class, or use a default color if not found
+            color = self.class_color_map.get(det.class_name, (255, 255, 255))
+
+            # Draw bounding box
+            cv2.rectangle(
+                out_image,
+                (x1, y1),
+                (x2, y2),
+                color,
+                2
+            )
+
+            # Create label text
+            label = f"{det.class_name} {det.confidence:.2f}"
+
+            # Draw label text
+            cv2.putText(
+                out_image,
+                label,
+                (x1, max(y1 - 10, 0)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                color,
+                2
+            )
         return out_image
 
 

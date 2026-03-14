@@ -77,7 +77,11 @@ class HomographyTransformer(Node):
 
         x,y = self.transformUvToXy(u, v)
         self.draw_marker(x,y, "base_link")
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 015f46c70695a255683311238ebd882d81276589
     def cone_detection_callback(self, msg):
         # Extract information from message
         u = msg.u
@@ -135,7 +139,7 @@ class HomographyTransformer(Node):
         self.marker_pub.publish(marker)
 
 
-def main(args=None):    
+def main(args=None):
     rclpy.init(args=args)
     homography_transformer = HomographyTransformer()
     rclpy.spin(homography_transformer)
