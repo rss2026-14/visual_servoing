@@ -33,7 +33,7 @@ def cd_color_segmentation(img, template):
     # upper_bound = np.array([25, 255, 255])
     cone_mask=cv2.inRange(HSV_img,lower_bound,upper_bound) #Masks image - any orange pixel is 1(white), and everything else is 0(black)
 
-    kernel = np.ones((5, 5), np.uint8) #5x5 of 1s
+    kernel = np.ones((3, 3), np.uint8) #5x5 of 1s
     eroded = cv2.erode(cone_mask, kernel, iterations=1) #For each pixel, if any neighbor in a 5x5 isn't included in the mask, removes pixel from mask
     dilated = cv2.dilate(eroded, kernel, iterations=1) #For each pixel, if any neighbor in a 5x5 is still included in the mask, adds pixel to mask
 
