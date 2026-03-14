@@ -56,9 +56,9 @@ def cd_color_segmentation(img, template):
         # Check if the "cone" is actually big enough to be real
         # If the area is too small, it's just noise.
         # If it's too big (like the whole floor), it's also wrong.
-        if cv2.contourArea(largest_contour) > 500:
-            x1, y1, w, h = cv2.boundingRect(largest_contour)
-            return ((x1, y1), (x1+w, y1+h))
+
+        x1, y1, w, h = cv2.boundingRect(largest_contour)
+        return ((x1, y1), (x1+w, y1+h))
 
     return None # No valid cone found
 
