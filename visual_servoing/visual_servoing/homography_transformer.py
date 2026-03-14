@@ -24,7 +24,7 @@ from vs_msgs.msg import ConeLocation, ConeLocationPixel
 PTS_IMAGE_PLANE = [[291, 218],
                    [72,272],
                    [543,218],
-                   [321,218]]  # dummy points
+                   [321,146]]  # dummy points
 ######################################################
 
 # PTS_GROUND_PLANE units are in inches
@@ -77,11 +77,6 @@ class HomographyTransformer(Node):
 
         x,y = self.transformUvToXy(u, v)
         self.draw_marker(x,y, "base_link")
-<<<<<<< HEAD
-        
-=======
-
->>>>>>> 015f46c70695a255683311238ebd882d81276589
     def cone_detection_callback(self, msg):
         # Extract information from message
         u = msg.u
