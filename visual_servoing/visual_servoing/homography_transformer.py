@@ -10,7 +10,7 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from ackermann_msgs.msg import AckermannDriveStamped
 from visualization_msgs.msg import Marker
-from geometry_msgs.msg import PointStamped
+from geometry_msgs.msg import Point
 from vs_msgs.msg import ConeLocation, ConeLocationPixel
 
 # The following collection of pixel locations and corresponding relative
@@ -53,7 +53,7 @@ class HomographyTransformer(Node):
             rclpy.logerr("ERROR: PTS_GROUND_PLANE and PTS_IMAGE_PLANE should be of same length")
 
         self.mouse_sub = self.create_subscription(
-            PointStamped,  # or whatever type /mouse_click publishes
+            Point,  # or whatever type /mouse_click publishes
             "/zed/zed_node/rgb/image_rect_color_mouse_left",
             self.mouse_callback,
             1
