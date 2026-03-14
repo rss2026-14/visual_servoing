@@ -52,12 +52,17 @@ class HomographyTransformer(Node):
         if not len(PTS_GROUND_PLANE) == len(PTS_IMAGE_PLANE):
             rclpy.logerr("ERROR: PTS_GROUND_PLANE and PTS_IMAGE_PLANE should be of same length")
 
-        self.mouse_sub = self.create_subscription(
-            PointStamped,  # or whatever type /mouse_click publishes
-            "/zed/zed_node/rgb/image_rect_color",
-   self.mouse_callback,
-            1
+        # Subscribe to click events: use image_click_publisher node if
+        # rqt_image_view's mouse topic doesn't work (common in ROS2).
+        mouse_topic = (
+            self.declare_parameter("mouse_click_topic", "/image_click")
+            .get_parameter_value()
+            .string_value
         )
+        self.mouse_sub = self.create_subscription(
+            PointStamped, mouse_topic, self.mouse_callback, 1
+        )
+        self.get_logger().info(f"Subscribed to mouse clicks on: {mouse_topic}")
 
         np_pts_ground = np.array(PTS_GROUND_PLANE)
         np_pts_ground = np_pts_ground * METERS_PER_INCH
@@ -123,6 +128,7 @@ class HomographyTransformer(Node):
         """
         marker = Marker()
         marker.header.frame_id = message_frame
+        marker.header.stamp = self.get_clock().now().to_msg()
         marker.type = marker.CYLINDER
         marker.action = marker.ADD
         marker.scale.x = .2
