@@ -52,10 +52,9 @@ class HomographyTransformer(Node):
         if not len(PTS_GROUND_PLANE) == len(PTS_IMAGE_PLANE):
             rclpy.logerr("ERROR: PTS_GROUND_PLANE and PTS_IMAGE_PLANE should be of same length")
 
-        # Subscribe to click events: use image_click_publisher node if
-        # rqt_image_view's mouse topic doesn't work (common in ROS2).
+
         mouse_topic = (
-            self.declare_parameter("mouse_click_topic", "/image_click")
+            self.declare_parameter("mouse_click_topic", "/zed/zed_node/left/image_rect_color_mouse_left")
             .get_parameter_value()
             .string_value
         )
@@ -97,7 +96,7 @@ class HomographyTransformer(Node):
         relative_xy_msg.y_pos = y
 
         self.cone_pub.publish(relative_xy_msg)
-        self.draw_marker(x,y, "base_link")
+        self.draw_marker(x,y, "zed_camera_link")
 
     def transformUvToXy(self, u, v):
         """
