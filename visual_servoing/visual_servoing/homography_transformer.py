@@ -54,7 +54,7 @@ class HomographyTransformer(Node):
 
         self.mouse_sub = self.create_subscription(
             PointStamped,  # or whatever type /mouse_click publishes
-            "/zed/rgb/image_rect_color_mouse_left",
+            "/zed/zed_node/rgb/image_rect_color_mouse_left",
             self.mouse_callback,
             1
         )
@@ -77,6 +77,7 @@ class HomographyTransformer(Node):
 
         x,y = self.transformUvToXy(u, v)
         self.draw_marker(x,y, "base_link")
+
     def cone_detection_callback(self, msg):
         # Extract information from message
         u = msg.u
@@ -91,6 +92,7 @@ class HomographyTransformer(Node):
         relative_xy_msg.y_pos = y
 
         self.cone_pub.publish(relative_xy_msg)
+        self.draw_marker(x,y, "base_link")
 
     def transformUvToXy(self, u, v):
         """
