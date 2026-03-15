@@ -26,6 +26,8 @@ class ParkingController(Node):
         self.declare_parameter("angle_multiplier", 2.5)
         self.declare_parameter("velocity", 0.7)
         self.declare_parameter("reverse_range", 0.1)
+        self.declare_parameter("distance_sensitivity", 0.1)
+        self.distance_sensitivity = self.get_parameter("distance_sensitivity").get_parameter_value().double_value
         self.angle_multiplier = self.get_parameter("angle_multiplier").get_parameter_value().double_value
         self.reverse_range = self.get_parameter("reverse_range").get_parameter_value().double_value
         self.velocity = self.get_parameter("velocity").get_parameter_value().double_value
@@ -136,6 +138,9 @@ class ParkingController(Node):
             elif param.name == 'reverse_range':
                 self.reverse_range = param.value
                 self.get_logger().info(f"Updated reverse_range to {self.reverse_range}")
+            elif param.name == 'distance_sensitivity':
+                self.distance_sensitivity = param.value
+                self.get_logger().info(f"Updated distance_sensitivity to {self.distance_sensitivity}")
 
         return SetParametersResult(successful=True)
 
