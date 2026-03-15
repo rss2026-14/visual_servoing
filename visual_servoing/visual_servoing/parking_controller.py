@@ -64,12 +64,26 @@ class ParkingController(Node):
             else:
                 steering_angle = -angle * self.angle_multiplier
                 velocity = -self.velocity
-        elif abs(angle) >= self.reverse_range:
-            velocity = -self.velocity
-            steering_angle = -angle * self.angle_multiplier
+        # elif abs(angle) >= self.reverse_range:
+        #     velocity = -self.velocity
+        #     steering_angle = -angle * self.angle_multiplier
+        # else:
+        #     velocity = self.velocity
+        #     steering_angle = angle * self.angle_multiplier
+        elif distance_error < 0:
+            if abs(angle) < self.reverse_range:
+                steering_angle = 0.0
+                velocity = -self.velocity
+            else:
+                steering_angle = -angle * self.angle_multiplier
+                velocity = -self.velocity
         else:
-            velocity = self.velocity
-            steering_angle = angle * self.angle_multiplier
+            if abs(angle) < self.reverse_range:
+                steering_angle = 0.0
+                velocity = self.velocity
+            else:
+                steering_angle = angle * self.angle_multiplier
+                velocity = self.velocity
 
         steering_angle = np.clip(steering_angle, -0.34, 0.34)
 
