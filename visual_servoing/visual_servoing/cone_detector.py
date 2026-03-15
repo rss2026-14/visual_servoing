@@ -14,7 +14,7 @@ from vs_msgs.msg import ConeLocationPixel
 
 # import your color segmentation algorithm; call this function in ros_image_callback!
 # from color_segmentation import cd_color_segmentation
-def cd_color_segmentation(img):
+def cd_color_segmentation(self,img):
     """
     Implement the cone detection using color segmentation algorithm
     Input:
@@ -26,6 +26,7 @@ def cd_color_segmentation(img):
     """
     ########## YOUR CODE STARTS HERE ##########
     HSV_img=cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+    self.debug_pub.publish(HSV_img)
 
     # Relaxed HSV bounds for distant cones (5m+): at distance, cone appears
     # smaller, less saturated, and dimmer. Lower S and V minimums help.
@@ -33,13 +34,13 @@ def cd_color_segmentation(img):
     upper_bound = np.array([50, 255, 255])
 
     cone_mask=cv2.inRange(HSV_img,lower_bound,upper_bound) #Masks image - any orange pixel is 1(white), and everything else is 0(black)
-
+    print(cone_mask)
     # Use gentler morphology: small cones at 5m can be erased by aggressive
     # erosion. Smaller kernel + fewer iterations preserves distant cone blobs.
     kernel = np.ones((3, 3), np.uint8) #2x2 of 1s
     eroded = cv2.erode(cone_mask, kernel, iterations=2) #For each pixel, if any neighbor in a 2x2 isn't included in the mask, removes pixel from mask
     dilated = cv2.dilate(eroded, kernel, iterations=2) #For each pixel, if any neighbor in a 2x2 is still included in the mask, adds pixel to mask
-
+    print(dilated)
     # contours, hierarchy = cv2.findContours(dilated, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE) #makes contour of object boundary
     # contours = sorted(contours, key=cv2.contourArea, reverse=True)
     # x1, y1, w, h = cv2.boundingRect(contours[0]) #makes rectangle around contour
@@ -150,11 +151,11 @@ class ConeDetector(Node):
         self.cone_pub.publish(cone_px_msg)
 
         # Publish debug image
-        try:
-            debug_msg = self.bridge.cv2_to_imgmsg(image, "bgr8")
-            self.debug_pub.publish(debug_msg)
-        except CvBridgeError as e:
-            self.get_logger().error(f"Failed to convert debug image: {e}")
+        #try:
+        #    debug_msg = self.bridge.cv2_to_imgmsg(image, "bgr8")
+        #    self.debug_pub.publish(debug_msg)
+        #except CvBridgeError as e:
+        #    self.get_logger().error(f"Failed to convert debug image: {e}")
 
 
 
