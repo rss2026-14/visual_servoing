@@ -6,27 +6,35 @@ from rclpy.serialization import deserialize_message
 from vs_msgs.msg import ConeLocationPixel
 
 # Your homography points (same as homography_transformer.py)
-PTS_IMAGE_PLANE = [[320, 240],
-                   [410, 195],
-                   [230, 195],
-                   [320, 150]]
+PTS_IMAGE_PLANE = [[315, 200],
+                   [175,233],
+                   [496,200],
+                   [334,146]]
 
-PTS_GROUND_PLANE = [[12, 0],
-                    [12, -6],
-                    [12,  6],
-                    [18, 0]]
+PTS_GROUND_PLANE = [[35,5],
+                    [19,15.5],
+                    [38,-18],
+                    [192,0]]
 
 METERS_PER_INCH = 0.0254
 
 # Ground truth: pixel coords you clicked WHILE bagging
 # (pixel_u, pixel_v, true_x_inches, true_y_inches)
 GROUND_TRUTH = [
-    (350, 220, 14, -2),
-    (290, 210, 13,  3),
-    (360, 170, 20, -1),
-    (341, 179, 48.5, 0),
+    (410, 262, 14, -2),
+    (331, 270, 13,  3),
+    (382, 234, 20, -1),
+    (360, 234, 20, 0),
+    (348, 185, 48.5, 0),
     (330, 155, 120,  0),
-    (449, 223, 20, -8)
+    (371, 157, 120, -10),
+    (315, 155, 120, 10),
+    (459, 231, 20, -8),
+    (268, 234, 20, 8),
+    (288, 177, 60, 12),
+    (408, 178, 60, -12),
+    (406, 162, 90, -18),
+    (281, 165, 90, 18)
 ]
 
 # Compute homography
