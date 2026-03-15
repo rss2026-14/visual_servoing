@@ -29,14 +29,14 @@ def cd_color_segmentation(img, template):
 
     # Relaxed HSV bounds for distant cones (5m+): at distance, cone appears
     # smaller, less saturated, and dimmer. Lower S and V minimums help.
-    lower_bound = np.array([0, 40, 60])
+    lower_bound = np.array([5, 150, 170])
     upper_bound = np.array([50, 255, 255])
 
     cone_mask=cv2.inRange(HSV_img,lower_bound,upper_bound) #Masks image - any orange pixel is 1(white), and everything else is 0(black)
 
     # Use gentler morphology: small cones at 5m can be erased by aggressive
     # erosion. Smaller kernel + fewer iterations preserves distant cone blobs.
-    kernel = np.ones((2, 2), np.uint8) #2x2 of 1s
+    kernel = np.ones((3, 3), np.uint8) #2x2 of 1s
     eroded = cv2.erode(cone_mask, kernel, iterations=2) #For each pixel, if any neighbor in a 2x2 isn't included in the mask, removes pixel from mask
     dilated = cv2.dilate(eroded, kernel, iterations=2) #For each pixel, if any neighbor in a 2x2 is still included in the mask, adds pixel to mask
 
