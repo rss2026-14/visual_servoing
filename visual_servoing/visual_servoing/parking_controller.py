@@ -17,8 +17,8 @@ class ParkingController(Node):
     def __init__(self):
         super().__init__("parking_controller")
 
-        self.declare_parameter("drive_topic")
-        DRIVE_TOPIC = self.get_parameter("drive_topic").value  # set in launch file; different for simulator vs racecar
+        self.declare_parameter("drive_topic", "/vesc/low_level/input/navigation")
+        DRIVE_TOPIC = self.get_parameter("drive_topic").get_parameter_value().string_value  # set in launch file; different for simulator vs racecar
 
         self.declare_parameter("parking_distance", 0.75)
         self.parking_distance = self.get_parameter("parking_distance").get_parameter_value().double_value
