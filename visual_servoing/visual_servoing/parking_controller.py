@@ -3,7 +3,7 @@
 import rclpy
 from rclpy.node import Node
 import numpy as np
-
+from rcl_interfaces.msg import SetParametersResult
 from vs_msgs.msg import ConeLocation, ParkingError
 from ackermann_msgs.msg import AckermannDriveStamped
 
@@ -39,6 +39,8 @@ class ParkingController(Node):
         # self.parking_distance = self.PARKING_DISTANCE  # meters; try playing with this number!
         self.relative_x = 0.0
         self.relative_y = 0.0
+
+        self.add_on_set_parameters_callback(self.parameters_callback)
 
         self.get_logger().info("Parking Controller Initialized")
 
@@ -115,6 +117,27 @@ class ParkingController(Node):
         error_msg.distance_error = np.sqrt(self.relative_x**2 + self.relative_y**2) - self.parking_distance
 
         self.error_pub.publish(error_msg)
+
+    def parameters_callback(self, params):
+        """
+        Dynamically updates parameters when modified via 'ros2 param set'.
+        """
+        for param in params:
+            if param.name == 'velocity':
+                self.velocity = param.value
+                self.speed = self.velocity # Sync fallback speed
+                self.get_logger().info(f"Updated velocity to {self.velocity}")
+            elif param.name == 'parking_distance':
+                self.parking_distance = param.value
+                self.get_logger().info(f"Updated parking_distance to {self.parking_distance}")
+            elif param.name == 'angle_multiplier':
+                self.angle_multiplier = param.value
+                self.get_logger().info(f"Updated angle_multiplier to {self.angle_multiplier}")
+            elif param.name == 'reverse_range':
+                self.reverse_range = param.value
+                self.get_logger().info(f"Updated reverse_range to {self.reverse_range}")
+
+        return SetParametersResult(successful=True)
 
 
 def main(args=None):
