@@ -51,18 +51,19 @@ def cd_color_segmentation(img):
     # # Return bounding box
     # return bounding_box
     contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
+    print(contours)
     if contours:
         # Sort to find the biggest orange blob
         largest_contour = max(contours, key=cv2.contourArea)
         area = cv2.contourArea(largest_contour)
-
+        print(area)
         # Reject tiny blobs (noise); cone at 5m is still typically 50+ px^2
         MIN_CONE_AREA = 30
         if area < MIN_CONE_AREA:
             return None
 
         x1, y1, w, h = cv2.boundingRect(largest_contour)
+        print((x1, y1), (x1 + w, y1 + h))
         return ((x1, y1), (x1 + w, y1 + h))
 
     return None # No valid cone found
