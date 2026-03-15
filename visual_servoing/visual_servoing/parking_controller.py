@@ -21,14 +21,14 @@ class ParkingController(Node):
         DRIVE_TOPIC = self.get_parameter("drive_topic").value  # set in launch file; different for simulator vs racecar
 
         self.declare_parameter("parking_distance", 0.75)
-        self.PARKING_DISTANCE = self.get_parameter("parking_distance").value
+        self.PARKING_DISTANCE = self.get_parameter("parking_distance").get_parameter_value().double_value
 
         self.declare_parameter("angle_multiplier", 2.5)
         self.declare_parameter("velocity", 0.7)
         self.declare_parameter("reverse_range", 0.1)
-        self.angle_multiplier = self.get_parameter("angle_multiplier").value
-        self.reverse_range = self.get_parameter("reverse_range").value
-        self.velocity = self.get_parameter("velocity").value
+        self.angle_multiplier = self.get_parameter("angle_multiplier").get_parameter_value().double_value
+        self.reverse_range = self.get_parameter("reverse_range").get_parameter_value().double_value
+        self.velocity = self.get_parameter("velocity").get_parameter_value().double_value
 
         self.drive_pub = self.create_publisher(AckermannDriveStamped, DRIVE_TOPIC, 10)
         self.error_pub = self.create_publisher(ParkingError, "/parking_error", 10)
