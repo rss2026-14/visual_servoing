@@ -14,7 +14,7 @@ from vs_msgs.msg import ConeLocationPixel
 
 # import your color segmentation algorithm; call this function in ros_image_callback!
 # from color_segmentation import cd_color_segmentation
-def cd_color_segmentation(img, template):
+def cd_color_segmentation(img, template, line):
     """
     Implement the cone detection using color segmentation algorithm
     Input:
@@ -29,8 +29,12 @@ def cd_color_segmentation(img, template):
 
     # Relaxed HSV bounds for distant cones (5m+): at distance, cone appears
     # smaller, less saturated, and dimmer. Lower S and V minimums help.
-    lower_bound = np.array([0, 165, 180])   # was [0, 80, 110] - too strict for far cones
-    upper_bound = np.array([50, 255, 255])
+    if not line:
+        lower_bound = np.array([0, 165, 180])   # was [0, 80, 110] - too strict for far cones
+        upper_bound = np.array([50, 255, 255])
+    elif line:
+        lower_bound = np.array([5, 140, 100])
+        upper_bound = np.array([15, 255, 255])
 
     cone_mask = cv2.inRange(HSV_img, lower_bound, upper_bound)
 
@@ -78,7 +82,9 @@ class ConeDetector(Node):
     def __init__(self):
         super().__init__("cone_detector")
         # toggle line follower vs cone parker
-        self.LineFollower = False
+
+        self.declare_parameter("LineFollower", False)
+        self.line_follower = self.get_parameter("LineFollower").get_parameter_value().bool_value
 
         # Subscribe to ZED camera RGB frames
         self.cone_pub = self.create_publisher(ConeLocationPixel, "/relative_cone_px", 10)
@@ -111,7 +117,7 @@ class ConeDetector(Node):
         # Get bounding box from color segmentation
         # The function returns ((x1, y1), (x2, y2))
         template = cv2.imread('src/visual_servoing/visual_servoing/visual_servoing/computer_vision/test_images_cone/cone_template.png')
-        bounding_box = cd_color_segmentation(image, template)
+        bounding_box = cd_color_segmentation(image, template, self.line_follower)
 
         # Create message to publish
         cone_px_msg = ConeLocationPixel()
