@@ -14,7 +14,7 @@ from vs_msgs.msg import ConeLocationPixel
 
 # import your color segmentation algorithm; call this function in ros_image_callback!
 # from color_segmentation import cd_color_segmentation
-def cd_color_segmentation(self,img):
+def cd_color_segmentation(img):
     """
     Implement the cone detection using color segmentation algorithm
     Input:
@@ -26,7 +26,7 @@ def cd_color_segmentation(self,img):
     """
     ########## YOUR CODE STARTS HERE ##########
     HSV_img=cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-    self.debug_pub.publish(HSV_img)
+    print(HSV_img)
 
     # Relaxed HSV bounds for distant cones (5m+): at distance, cone appears
     # smaller, less saturated, and dimmer. Lower S and V minimums help.
