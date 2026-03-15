@@ -29,7 +29,7 @@ def cd_color_segmentation(img, template):
 
     # Relaxed HSV bounds for distant cones (5m+): at distance, cone appears
     # smaller, less saturated, and dimmer. Lower S and V minimums help.
-    lower_bound = np.array([0, 150, 90])   # was [0, 80, 110] - too strict for far cones
+    lower_bound = np.array([0, 80, 60])   # was [0, 80, 110] - too strict for far cones
     upper_bound = np.array([50, 255, 255])
 
     cone_mask = cv2.inRange(HSV_img, lower_bound, upper_bound)
