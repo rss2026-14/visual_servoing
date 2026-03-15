@@ -24,7 +24,7 @@ class LineFollower(Node):
         self.parking_distance = self.get_parameter("parking_distance").get_parameter_value().double_value
 
         self.declare_parameter("angle_multiplier", 2.5)
-        self.declare_parameter("velocity", 0.7)
+        self.declare_parameter("velocity", 2.0)
         self.declare_parameter("reverse_range", 0.1)
         self.declare_parameter("lookahead_distance", 1.5)
         self.lookahead_distance = self.get_parameter("lookahead_distance").get_parameter_value().double_value
