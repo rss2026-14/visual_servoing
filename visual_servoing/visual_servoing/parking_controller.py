@@ -3,7 +3,7 @@
 import rclpy
 from rclpy.node import Node
 import numpy as np
-
+from rcl_interfaces.msg import SetParametersResult
 from vs_msgs.msg import ConeLocation, ParkingError
 from ackermann_msgs.msg import AckermannDriveStamped
 
@@ -17,18 +17,18 @@ class ParkingController(Node):
     def __init__(self):
         super().__init__("parking_controller")
 
-        self.declare_parameter("drive_topic")
-        DRIVE_TOPIC = self.get_parameter("drive_topic").value  # set in launch file; different for simulator vs racecar
+        self.declare_parameter("drive_topic", "/vesc/low_level/input/navigation")
+        DRIVE_TOPIC = self.get_parameter("drive_topic").get_parameter_value().string_value  # set in launch file; different for simulator vs racecar
 
         self.declare_parameter("parking_distance", 0.75)
-        self.PARKING_DISTANCE = self.get_parameter("parking_distance").value
+        self.parking_distance = self.get_parameter("parking_distance").get_parameter_value().double_value
 
         self.declare_parameter("angle_multiplier", 2.5)
         self.declare_parameter("velocity", 0.7)
         self.declare_parameter("reverse_range", 0.1)
-        self.angle_multiplier = self.get_parameter("angle_multiplier").value
-        self.reverse_range = self.get_parameter("reverse_range").value
-        self.velocity = self.get_parameter("velocity").value
+        self.angle_multiplier = self.get_parameter("angle_multiplier").get_parameter_value().double_value
+        self.reverse_range = self.get_parameter("reverse_range").get_parameter_value().double_value
+        self.velocity = self.get_parameter("velocity").get_parameter_value().double_value
 
         self.drive_pub = self.create_publisher(AckermannDriveStamped, DRIVE_TOPIC, 10)
         self.error_pub = self.create_publisher(ParkingError, "/parking_error", 10)
@@ -36,9 +36,11 @@ class ParkingController(Node):
         self.create_subscription(
             ConeLocation, "/relative_cone", self.relative_cone_callback, 1)
 
-        self.parking_distance = self.PARKING_DISTANCE  # meters; try playing with this number!
+        # self.parking_distance = self.PARKING_DISTANCE  # meters; try playing with this number!
         self.relative_x = 0.0
         self.relative_y = 0.0
+
+        self.add_on_set_parameters_callback(self.parameters_callback)
 
         self.get_logger().info("Parking Controller Initialized")
 
@@ -57,6 +59,8 @@ class ParkingController(Node):
         current_distance = np.sqrt(self.relative_x**2 + self.relative_y**2)
         distance_error = current_distance - self.parking_distance
 
+        self.get_logger().info(f"Parking Distance: {self.parking_distance}")
+
         if abs(distance_error) < 0.05:
             if abs(angle) < self.reverse_range:
                 steering_angle = 0.0
@@ -64,12 +68,26 @@ class ParkingController(Node):
             else:
                 steering_angle = -angle * self.angle_multiplier
                 velocity = -self.velocity
-        elif abs(angle) >= self.reverse_range:
-            velocity = -self.velocity
-            steering_angle = -angle * self.angle_multiplier
+        # elif abs(angle) >= self.reverse_range:
+        #     velocity = -self.velocity
+        #     steering_angle = -angle * self.angle_multiplier
+        # else:
+        #     velocity = self.velocity
+        #     steering_angle = angle * self.angle_multiplier
+        elif distance_error < 0:
+            if abs(angle) < self.reverse_range:
+                steering_angle = 0.0
+                velocity = -self.velocity
+            else:
+                steering_angle = -angle * self.angle_multiplier
+                velocity = -self.velocity
         else:
-            velocity = self.velocity
-            steering_angle = angle * self.angle_multiplier
+            if abs(angle) < self.reverse_range:
+                steering_angle = 0.0
+                velocity = self.velocity
+            else:
+                steering_angle = angle * self.angle_multiplier
+                velocity = self.velocity
 
         steering_angle = np.clip(steering_angle, -0.34, 0.34)
 
@@ -99,6 +117,27 @@ class ParkingController(Node):
         error_msg.distance_error = np.sqrt(self.relative_x**2 + self.relative_y**2) - self.parking_distance
 
         self.error_pub.publish(error_msg)
+
+    def parameters_callback(self, params):
+        """
+        Dynamically updates parameters when modified via 'ros2 param set'.
+        """
+        for param in params:
+            if param.name == 'velocity':
+                self.velocity = param.value
+                self.speed = self.velocity # Sync fallback speed
+                self.get_logger().info(f"Updated velocity to {self.velocity}")
+            elif param.name == 'parking_distance':
+                self.parking_distance = param.value
+                self.get_logger().info(f"Updated parking_distance to {self.parking_distance}")
+            elif param.name == 'angle_multiplier':
+                self.angle_multiplier = param.value
+                self.get_logger().info(f"Updated angle_multiplier to {self.angle_multiplier}")
+            elif param.name == 'reverse_range':
+                self.reverse_range = param.value
+                self.get_logger().info(f"Updated reverse_range to {self.reverse_range}")
+
+        return SetParametersResult(successful=True)
 
 
 def main(args=None):
