@@ -110,7 +110,7 @@ class ConeDetector(Node):
 
         # Get bounding box from color segmentation
         # The function returns ((x1, y1), (x2, y2))
-        #template = cv2.imread('src/visual_servoing/visual_servoing/visual_servoing/computer_vision/test_images_cone/cone_template.png')
+        template = cv2.imread('~/racecar_ws/src/visual_servoing/visual_servoing/visual_servoing/computer_vision/test_images_cone/cone_template.png')
         bounding_box = cd_color_segmentation(image, template)
 
         # Create message to publish
