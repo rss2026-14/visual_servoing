@@ -20,6 +20,9 @@ class ParkingController(Node):
         self.declare_parameter("drive_topic")
         DRIVE_TOPIC = self.get_parameter("drive_topic").value  # set in launch file; different for simulator vs racecar
 
+        self.declare_parameter("parking_distance")
+        self.PARKING_DISTANCE = self.get_parameter("parking_distance").value
+
         self.declare_parameter("angle_multiplier", 2.5)
         self.declare_parameter("velocity", 0.7)
         self.declare_parameter("reverse_range", 0.1)
@@ -33,7 +36,7 @@ class ParkingController(Node):
         self.create_subscription(
             ConeLocation, "/relative_cone", self.relative_cone_callback, 1)
 
-        self.parking_distance = .75  # meters; try playing with this number!
+        self.parking_distance = self.PARKING_DISTANCE  # meters; try playing with this number!
         self.relative_x = 0.0
         self.relative_y = 0.0
 
