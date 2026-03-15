@@ -123,6 +123,7 @@ class HomographyTransformer(Node):
         homogeneous_xy = xy * scaling_factor
         x = homogeneous_xy[0, 0]
         y = homogeneous_xy[1, 0]
+        self.get_logger().info(f"Mouse click received")
         self.draw_marker(x,y,"zed_camera_link")
         return x, y
 
