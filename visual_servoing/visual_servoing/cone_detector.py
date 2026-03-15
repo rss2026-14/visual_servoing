@@ -14,7 +14,7 @@ from vs_msgs.msg import ConeLocationPixel
 
 # import your color segmentation algorithm; call this function in ros_image_callback!
 # from color_segmentation import cd_color_segmentation
-def cd_color_segmentation(img):
+def cd_color_segmentation(img, template):
     """
     Implement the cone detection using color segmentation algorithm
     Input:
@@ -25,22 +25,21 @@ def cd_color_segmentation(img):
             (x1, y1) is the top left of the bbox and (x2, y2) is the bottom right of the bbox
     """
     ########## YOUR CODE STARTS HERE ##########
-    HSV_img=cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-    print(HSV_img)
+    HSV_img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 
     # Relaxed HSV bounds for distant cones (5m+): at distance, cone appears
     # smaller, less saturated, and dimmer. Lower S and V minimums help.
-    lower_bound = np.array([0, 150, 170])
+    lower_bound = np.array([0, 40, 60])   # was [0, 80, 110] - too strict for far cones
     upper_bound = np.array([50, 255, 255])
 
-    cone_mask=cv2.inRange(HSV_img,lower_bound,upper_bound) #Masks image - any orange pixel is 1(white), and everything else is 0(black)
-    print(cone_mask)
+    cone_mask = cv2.inRange(HSV_img, lower_bound, upper_bound)
+
     # Use gentler morphology: small cones at 5m can be erased by aggressive
     # erosion. Smaller kernel + fewer iterations preserves distant cone blobs.
-    kernel = np.ones((3, 3), np.uint8) #2x2 of 1s
-    eroded = cv2.erode(cone_mask, kernel, iterations=2) #For each pixel, if any neighbor in a 2x2 isn't included in the mask, removes pixel from mask
-    dilated = cv2.dilate(eroded, kernel, iterations=2) #For each pixel, if any neighbor in a 2x2 is still included in the mask, adds pixel to mask
-    print(dilated)
+    kernel = np.ones((2, 2), np.uint8)
+    eroded = cv2.erode(cone_mask, kernel, iterations=1)
+    dilated = cv2.dilate(eroded, kernel, iterations=1)
+
     # contours, hierarchy = cv2.findContours(dilated, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE) #makes contour of object boundary
     # contours = sorted(contours, key=cv2.contourArea, reverse=True)
     # x1, y1, w, h = cv2.boundingRect(contours[0]) #makes rectangle around contour
@@ -52,22 +51,21 @@ def cd_color_segmentation(img):
     # # Return bounding box
     # return bounding_box
     contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    print(contours)
+
     if contours:
         # Sort to find the biggest orange blob
         largest_contour = max(contours, key=cv2.contourArea)
         area = cv2.contourArea(largest_contour)
-        print(area)
+
         # Reject tiny blobs (noise); cone at 5m is still typically 50+ px^2
         MIN_CONE_AREA = 30
         if area < MIN_CONE_AREA:
             return None
 
         x1, y1, w, h = cv2.boundingRect(largest_contour)
-        print((x1, y1), (x1 + w, y1 + h))
         return ((x1, y1), (x1 + w, y1 + h))
 
-    return None # No valid cone found
+    return None  # No valid cone found
 
 
 class ConeDetector(Node):
@@ -112,7 +110,8 @@ class ConeDetector(Node):
 
         # Get bounding box from color segmentation
         # The function returns ((x1, y1), (x2, y2))
-        bounding_box = cd_color_segmentation(image)
+        template = cv2.imread('src/visual_servoing/visual_servoing/visual_servoing/computer_vision/test_images_cone/cone_template.png')
+        bounding_box = cd_color_segmentation(image, template)
 
         # Create message to publish
         cone_px_msg = ConeLocationPixel()
@@ -151,11 +150,11 @@ class ConeDetector(Node):
         self.cone_pub.publish(cone_px_msg)
 
         # Publish debug image
-        #try:
-        #    debug_msg = self.bridge.cv2_to_imgmsg(image, "bgr8")
-        #    self.debug_pub.publish(debug_msg)
-        #except CvBridgeError as e:
-        #    self.get_logger().error(f"Failed to convert debug image: {e}")
+        try:
+            debug_msg = self.bridge.cv2_to_imgmsg(image, "bgr8")
+            self.debug_pub.publish(debug_msg)
+        except CvBridgeError as e:
+            self.get_logger().error(f"Failed to convert debug image: {e}")
 
 
 
