@@ -59,10 +59,10 @@ class HomographyTransformer(Node):
             .string_value
         )
         self.mouse_sub = self.create_subscription(
-            PointStamped, mouse_topic, self.mouse_callback, 1
+            PointStamped, "/cone_debug_image_mouse_left", self.mouse_callback, 1
         )
         self.get_logger().info(f"Subscribed to mouse clicks on: {mouse_topic}")
-        print(mouse_topic)
+
         np_pts_ground = np.array(PTS_GROUND_PLANE)
         np_pts_ground = np_pts_ground * METERS_PER_INCH
         np_pts_ground = np.float32(np_pts_ground[:, np.newaxis, :])
