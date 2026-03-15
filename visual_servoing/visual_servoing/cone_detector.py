@@ -8,6 +8,7 @@ import cv2
 
 from cv_bridge import CvBridge, CvBridgeError
 
+from rcl_interfaces.msg import SetParametersResult
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Point #geometry_msgs not in CMake file
 from vs_msgs.msg import ConeLocationPixel
@@ -163,6 +164,16 @@ class ConeDetector(Node):
             self.get_logger().error(f"Failed to convert debug image: {e}")
 
 
+def parameters_callback(self, params):
+        """
+        Dynamically updates parameters when modified via 'ros2 param set'.
+        """
+        for param in params:
+            if param.name == 'LineFollower':
+                self.line_follower = param.value
+                self.get_logger().info(f"Updated lookahead_distance to {self.line_follower}")
+
+        return SetParametersResult(successful=True)
 
 def main(args=None):
     rclpy.init(args=args)
