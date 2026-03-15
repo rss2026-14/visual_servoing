@@ -25,7 +25,7 @@ def cd_color_segmentation(img, template):
             (x1, y1) is the top left of the bbox and (x2, y2) is the bottom right of the bbox
     """
     ########## YOUR CODE STARTS HERE ##########
-    HSV_img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+    HSV_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # Relaxed HSV bounds for distant cones (5m+): at distance, cone appears
     # smaller, less saturated, and dimmer. Lower S and V minimums help.
