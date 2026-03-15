@@ -138,15 +138,15 @@ def cd_template_matching(img, template):
         if best_match is None or max_val > best_match[0]:
             best_match = (max_val, max_loc, w, h)
 
-        # compute bounding box from best match
-        if best_match is not None:
-            (_, best_loc, best_w, best_h) = best_match
-            x1, y1 = best_loc
-            x2 = x1 + best_w
-            y2 = y1 + best_h
-            bounding_box = ((x1, y1), (x2, y2))
-        else:
-            bounding_box = ((0, 0), (0, 0))
+        # # compute bounding box from best match
+        # if best_match is not None:
+        #     (_, best_loc, best_w, best_h) = best_match
+        #     x1, y1 = best_loc
+        #     x2 = x1 + best_w
+        #     y2 = y1 + best_h
+        #     bounding_box = ((x1, y1), (x2, y2))
+        # else:
+        #     bounding_box = ((0, 0), (0, 0))
 
         # Remember to resize the bounding box using the highest scoring scale
         # x1,y1 pixel will be accurate, but x2,y2 needs to be correctly scaled
