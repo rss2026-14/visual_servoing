@@ -2,7 +2,7 @@ import cv2
 from ultralytics import YOLO
 
 INPUT_VIDEO = "IMG_2373.mp4"
-OUTPUT_VIDEO = "IMG_2373_annotated.mp4"
+OUTPUT_VIDEO = "IMG_2373_annotated_iou_0.72.mp4"
 
 model = YOLO("yolo11n.pt")
 cap = cv2.VideoCapture(INPUT_VIDEO)
