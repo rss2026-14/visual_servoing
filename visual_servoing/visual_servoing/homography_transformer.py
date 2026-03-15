@@ -54,7 +54,7 @@ class HomographyTransformer(Node):
 
 
         mouse_topic = (
-            self.declare_parameter("mouse_click_topic", "/zed/zed_node/rgb/image_rect_color_mouse_left")
+            self.declare_parameter("mouse_click_topic", "/cone_debug_image_mouse_left")
             .get_parameter_value()
             .string_value
         )
