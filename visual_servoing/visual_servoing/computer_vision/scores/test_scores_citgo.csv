@@ -1,3 +1,4 @@
+method,image,score
 template_matching,./test_images_citgo/citgo1.jpeg,0.05283757338551859
 template_matching,./test_images_citgo/citgo2.jpeg,0.6924012158054711
 template_matching,./test_images_citgo/citgo3.jpeg,0.38356388638782024
