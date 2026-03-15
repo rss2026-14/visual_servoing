@@ -14,7 +14,7 @@ from vs_msgs.msg import ConeLocationPixel
 
 # import your color segmentation algorithm; call this function in ros_image_callback!
 # from color_segmentation import cd_color_segmentation
-def cd_color_segmentation(img, template):
+def cd_color_segmentation(img):
     """
     Implement the cone detection using color segmentation algorithm
     Input:
@@ -110,8 +110,7 @@ class ConeDetector(Node):
 
         # Get bounding box from color segmentation
         # The function returns ((x1, y1), (x2, y2))
-        template = cv2.imread('src/visual_servoing/visual_servoing/visual_servoing/computer_vision/test_images_cone/cone_template.png')
-        bounding_box = cd_color_segmentation(image, template)
+        bounding_box = cd_color_segmentation(image)
 
         # Create message to publish
         cone_px_msg = ConeLocationPixel()
