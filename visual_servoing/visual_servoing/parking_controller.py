@@ -41,7 +41,6 @@ class ParkingController(Node):
         # self.parking_distance = self.PARKING_DISTANCE  # meters; try playing with this number!
         self.relative_x = 0.0
         self.relative_y = 0.0
-
         self.add_on_set_parameters_callback(self.parameters_callback)
 
         self.get_logger().info("Parking Controller Initialized")
@@ -63,7 +62,7 @@ class ParkingController(Node):
 
         self.get_logger().info(f"Parking Distance: {self.parking_distance}")
 
-        if abs(distance_error) < 0.05:
+        if abs(distance_error) < self.distance_sensitivity:
             if abs(angle) < self.reverse_range:
                 steering_angle = 0.0
                 velocity = 0.0
