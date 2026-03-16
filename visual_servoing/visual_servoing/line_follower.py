@@ -42,6 +42,7 @@ class LineFollower(Node):
         self.relative_x = 0.0
         self.relative_y = 0.0
         self.lookahead_distance = 1.5
+        self.add_on_set_parameters_callback(self.parameters_callback)
 
         self.get_logger().info("Line Follower Initialized")
 
