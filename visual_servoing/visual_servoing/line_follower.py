@@ -44,7 +44,7 @@ class LineFollower(Node):
         # self.lookahead_distance = 1.5
 
         self.declare_parameter("kp", 2.0)
-        self.declare_parameter("kd", 0.5)
+        self.declare_parameter("kd", 1.0)
 
         self.kp = self.get_parameter("kp").get_parameter_value().double_value
         self.kd = self.get_parameter("kd").get_parameter_value().double_value
