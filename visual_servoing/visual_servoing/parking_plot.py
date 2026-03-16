@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # ── CONFIG ──────────────────────────────────────────────────────────────────
-CSV_PATH = r"/home/racecar/racecar_ws/src/visual_servoing/visual_servoing/visual_servoing/parking_rosbags/straight_real_1/straight_real_1_0.csv"
+CSV_PATH = r"/home/racecar/racecar_ws/src/visual_servoing/visual_servoing/visual_servoing/parking_rosbags/outrange_real_3/parking_error.csv"
 
 START_TIME = 2.0  # Seconds to trim from the start, if needed
 # ────────────────────────────────────────────────────────────────────────────
