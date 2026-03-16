@@ -47,7 +47,10 @@ class LineFollower(Node):
 
     def relative_cone_callback(self, msg):
         # pretend cone is ahead
-        self.relative_x = self.lookahead_distance * self.velocity
+        if self.velocity>2.0:
+            self.relative_x = self.lookahead_distance * 2
+        else:
+            self.relative_x = self.lookahead_distance * self.velocity
 
         # lateral offset from line
         self.relative_y = msg.y_pos
