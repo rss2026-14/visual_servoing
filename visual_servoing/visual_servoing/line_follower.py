@@ -38,25 +38,16 @@ class LineFollower(Node):
         self.create_subscription(
             ConeLocation, "/relative_cone", self.relative_cone_callback, 1)
 
-        # self.parking_distance = .75  # meters; try playing with this number!
+        self.parking_distance = .75  # meters; try playing with this number!
         self.relative_x = 0.0
         self.relative_y = 0.0
-        # self.lookahead_distance = 1.5
-
-        self.declare_parameter("kp", 1.5)
-        self.declare_parameter("kd", 1.5)
-
-        self.kp = self.get_parameter("kp").get_parameter_value().double_value
-        self.kd = self.get_parameter("kd").get_parameter_value().double_value
-
-        self.prev_error = 0.0
-        self.prev_time = self.get_clock().now()
+        self.lookahead_distance = 1.5
 
         self.get_logger().info("Line Follower Initialized")
 
     def relative_cone_callback(self, msg):
         # pretend cone is ahead
-        self.relative_x = self.lookahead_distance
+        self.relative_x = self.lookahead_distance * self.velocity
 
         # lateral offset from line
         self.relative_y = msg.y_pos
@@ -70,32 +61,13 @@ class LineFollower(Node):
 
 
         #################################
-        # angle = np.arctan2(self.relative_y, self.relative_x)
+        angle = np.arctan2(self.relative_y, self.relative_x)
 
-        # # always drive forward
-        # # velocity = self.velocity
+        # always drive forward
+        velocity = self.velocity
 
-        # # steer toward the "virtual cone"
-        # steering_angle = self.angle_multiplier * angle
-
-        # Lateral error
-        error = self.relative_y
-
-        # Compute dt
-        current_time = self.get_clock().now()
-        dt = (current_time - self.prev_time).nanoseconds / 1e9
-        if dt == 0:
-            dt = 1e-6
-
-        # Derivative
-        error_dot = (error - self.prev_error) / dt
-
-        # PD controller
-        steering_angle = self.kp * error + self.kd * error_dot
-
-        # Save previous values
-        self.prev_error = error
-        self.prev_time = current_time
+        # steer toward the "virtual cone"
+        steering_angle = self.angle_multiplier * angle
 
         steering_angle = np.clip(steering_angle, -0.34, 0.34)
 

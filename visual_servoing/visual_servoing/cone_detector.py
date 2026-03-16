@@ -26,7 +26,21 @@ def cd_color_segmentation(img, template, line):
             (x1, y1) is the top left of the bbox and (x2, y2) is the bottom right of the bbox
     """
     ########## YOUR CODE STARTS HERE ##########
-    HSV_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h, w = img.shape[:2]
+
+    # Create black mask
+    mask = np.zeros((h, w), dtype=np.uint8)
+
+    # Define the region you want to keep
+    top = int(h * 0.3)
+    bottom = int(h * 0.7)
+
+    mask[top:bottom, :] = 255
+
+    # Apply mask
+    result = cv2.bitwise_and(img, img, mask=mask)
+
+    HSV_img = cv2.cvtColor(result, cv2.COLOR_BGR2HSV)
 
     # Relaxed HSV bounds for distant cones (5m+): at distance, cone appears
     # smaller, less saturated, and dimmer. Lower S and V minimums help.
